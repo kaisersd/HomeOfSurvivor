@@ -66534,6 +66534,7 @@
 
       const compatibleProviders = [
         'HttpProvider',
+        'QryptoRPCProvider',
         'o',
       ];
 
@@ -67241,10 +67242,18 @@ var OperaBlockChain = (function () {
     function OperaBlockChain() {
     }
     OperaBlockChain.init = function () {
-        if (window.qryptoProvider == null) {
-            throw ("qryptoProvider 不存在");
+        var qryptoProvider;
+        if (window.qryptoProvider != null) {
+            qryptoProvider = window.qryptoProvider;
         }
-        var qweb3 = new Qweb3(window.qryptoProvider);
+        else if (window.qrypto && window.qrypto.rpcProvider != null) {
+            qryptoProvider = window.qrypto.rpcProvider;
+        }
+        if (qryptoProvider == null) {
+            alert("qryptoProvider 不存在");
+            return;
+        }
+        var qweb3 = new Qweb3(qryptoProvider);
         OperaBlockChain.contract = qweb3.Contract(OperaBlockChain.contractAddress, OperaBlockChain.tokenAbi);
         OperaBlockChain.qweb3 = qweb3;
     };
@@ -67378,7 +67387,7 @@ var OperaBlockChain = (function () {
     OperaBlockChain.nextDay = function (callBack) {
         OperaBlockChain.send("newDay", [Math.floor(Math.random() * 1000)], callBack);
     };
-    OperaBlockChain.upgrade = function (BuildingIndex, callBack) {
+    OperaBlockChain.upgrade = function (callBack, BuildingIndex) {
         switch (BuildingIndex) {
             case 0:
                 OperaBlockChain.send("upGradeFacilities", [1], callBack);
@@ -67404,17 +67413,16 @@ var OperaBlockChain = (function () {
         OperaBlockChain.send("peopleGateStand", [true], callBack);
     };
     OperaBlockChain.withdraw = function (callBack) {
-        OperaBlockChain.send("peopleGateStand", [true], callBack);
+        OperaBlockChain.send("peopleGateStand", [false], callBack);
     };
     OperaBlockChain.call = function (methodName, methodArgs, onFinish, onError) {
         if (onError === void 0) { onError = null; }
         OperaBlockChain.contract.call(methodName, {
             methodArgs: [OperaBlockChain.senderAddr]
         }).then(function (e) {
-            console.log(e);
             onFinish && onFinish(e.executionResult.formattedOutput);
         }).catch(function (e) {
-            console.log(e);
+            alert(e);
             onError && onError(e);
         });
     };
@@ -67428,99 +67436,13 @@ var OperaBlockChain = (function () {
             senderAddress: OperaBlockChain.senderAddress
         }).then(function (e) {
             onFinish && onFinish();
+            OperaBlockChain.sendTips && OperaBlockChain.sendTips("发送区块链数据成功！！！");
         }).catch(function (e) {
-            console.log(e);
+            alert(e);
             onError && onError(e);
         });
     };
     OperaBlockChain.tokenAbi = [
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "discount",
-                    "type": "bool"
-                }
-            ],
-            "name": "buyAsset",
-            "outputs": [],
-            "payable": true,
-            "stateMutability": "payable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "createPlayer",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "expatriatePeople",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "loginGame",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "randNonce",
-                    "type": "uint256"
-                }
-            ],
-            "name": "newDay",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "toStand",
-                    "type": "bool"
-                }
-            ],
-            "name": "peopleGateStand",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "prayRain",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "repairGate",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
         {
             "constant": false,
             "inputs": [],
@@ -67528,59 +67450,6 @@ var OperaBlockChain = (function () {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "searchRescue",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "index",
-                    "type": "uint256"
-                }
-            ],
-            "name": "upGradeFacilities",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-        },
-        {
-            "constant": true,
-            "inputs": [
-                {
-                    "name": "who",
-                    "type": "address"
-                }
-            ],
-            "name": "getActionPower",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
             "type": "function"
         },
         {
@@ -67622,7 +67491,7 @@ var OperaBlockChain = (function () {
                     "type": "address"
                 }
             ],
-            "name": "getGateMonsterVitality",
+            "name": "getLiveDay",
             "outputs": [
                 {
                     "name": "",
@@ -67676,7 +67545,77 @@ var OperaBlockChain = (function () {
                     "type": "address"
                 }
             ],
-            "name": "getLiveDay",
+            "name": "getActionPower",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "prayRain",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "index",
+                    "type": "uint256"
+                }
+            ],
+            "name": "upGradeFacilities",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "who",
+                    "type": "address"
+                }
+            ],
+            "name": "getGateMonsterVitality",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "expatriatePeople",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "who",
+                    "type": "address"
+                }
+            ],
+            "name": "playerGameState",
             "outputs": [
                 {
                     "name": "",
@@ -67707,6 +67646,47 @@ var OperaBlockChain = (function () {
             "type": "function"
         },
         {
+            "constant": false,
+            "inputs": [],
+            "name": "createPlayer",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "repairGate",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "loginGame",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "toStand",
+                    "type": "bool"
+                }
+            ],
+            "name": "peopleGateStand",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
             "constant": true,
             "inputs": [
                 {
@@ -67714,16 +67694,8 @@ var OperaBlockChain = (function () {
                     "type": "address"
                 }
             ],
-            "name": "getPeopleList",
+            "name": "getWooden",
             "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
                 {
                     "name": "",
                     "type": "uint256"
@@ -67738,6 +67710,20 @@ var OperaBlockChain = (function () {
             "type": "function"
         },
         {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "discount",
+                    "type": "bool"
+                }
+            ],
+            "name": "buyAsset",
+            "outputs": [],
+            "payable": true,
+            "stateMutability": "payable",
+            "type": "function"
+        },
+        {
             "constant": true,
             "inputs": [
                 {
@@ -67745,7 +67731,7 @@ var OperaBlockChain = (function () {
                     "type": "address"
                 }
             ],
-            "name": "getPopulation",
+            "name": "getWater",
             "outputs": [
                 {
                     "name": "",
@@ -67810,6 +67796,60 @@ var OperaBlockChain = (function () {
                     "type": "address"
                 }
             ],
+            "name": "getPopulation",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "who",
+                    "type": "address"
+                }
+            ],
+            "name": "getPeopleList",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "who",
+                    "type": "address"
+                }
+            ],
             "name": "getVegetable",
             "outputs": [
                 {
@@ -67826,72 +67866,41 @@ var OperaBlockChain = (function () {
             "type": "function"
         },
         {
-            "constant": true,
+            "constant": false,
             "inputs": [
                 {
-                    "name": "who",
-                    "type": "address"
-                }
-            ],
-            "name": "getWater",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
+                    "name": "randNonce",
                     "type": "uint256"
                 }
             ],
+            "name": "newDay",
+            "outputs": [],
             "payable": false,
-            "stateMutability": "view",
+            "stateMutability": "nonpayable",
             "type": "function"
         },
         {
-            "constant": true,
-            "inputs": [
-                {
-                    "name": "who",
-                    "type": "address"
-                }
-            ],
-            "name": "getWooden",
+            "constant": false,
+            "inputs": [],
+            "name": "searchRescue",
             "outputs": [
                 {
                     "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
+                    "type": "bool"
                 }
             ],
             "payable": false,
-            "stateMutability": "view",
+            "stateMutability": "nonpayable",
             "type": "function"
         },
         {
-            "constant": true,
-            "inputs": [
-                {
-                    "name": "who",
-                    "type": "address"
-                }
-            ],
-            "name": "playerGameState",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
+            "inputs": [],
             "payable": false,
-            "stateMutability": "view",
-            "type": "function"
+            "stateMutability": "nonpayable",
+            "type": "constructor"
         }
     ];
-    OperaBlockChain.contractAddress = "b7253e0c09e7b8dd08808afdd58631aaf5851aeb";
+    OperaBlockChain.contractAddress = "8c5add0a8f2d9f4a4bcf604e636528610dd9aa72";
     OperaBlockChain.senderAddress = "qaKLNWdheLyNxbQ36eBYyapmktEDXSD37N";
     return OperaBlockChain;
 }());
@@ -68358,7 +68367,6 @@ var BlockChainDB = (function () {
     };
     BlockChainDB.init = function () {
         OperaBlockChain.init();
-        BlockChainDB.events = ["【游戏开始】"];
     };
     BlockChainDB.loginGame = function (senderAddress, callBack) {
         OperaBlockChain.setSenderAddress(senderAddress);
@@ -68372,6 +68380,7 @@ var BlockChainDB = (function () {
         });
     };
     BlockChainDB.createPlayer = function (callBack) {
+        BlockChainDB.events = [LanguageManager.gameObj["start"]];
         BlockChainDB.getBlockChainData("playerGameState", function (e) {
             if (e == 5) {
                 BlockChainDB.setBlockChain("createPlayer", function () {
@@ -68397,7 +68406,7 @@ var BlockChainDB = (function () {
                             BlockChainDB.getBlockChainData("getRain", function (e) {
                                 BlockChainDB.Rain = e;
                                 BlockChainDB.getBlockChainData("getActionPower", function (e) {
-                                    BlockChainDB.actionPower = [e, BlockChainDB.bornTime + 1];
+                                    BlockChainDB.actionPower = [e, BlockChainDB.bornTime];
                                     BlockChainDB.getBlockChainData("getMaxLiveDay", function (e) {
                                         BlockChainDB.maxBornTime = e;
                                         BlockChainDB.getBlockChainData("getDayState", function (info) {
@@ -68427,9 +68436,9 @@ var BlockChainDB = (function () {
             BlockChainDB.checkSetDataSuccess(funcName, arg);
         };
         if (arg) {
-            params = params.concat(arg);
+            params = arg;
         }
-        params.push(sendSuccess);
+        params.unshift(sendSuccess);
         OperaBlockChain[funcName].apply(OperaBlockChain, params);
     };
     BlockChainDB.checkSetDataSuccess = function (funcName, arg) {
@@ -68460,7 +68469,7 @@ var BlockChainDB = (function () {
                 BlockChainDB.checkNewDay(funcName);
                 break;
             case "upgrade":
-                BlockChainDB.checkUpgradeSccess(funcName, arg[0]);
+                BlockChainDB.checkUpgradeSccess(funcName, arg[1]);
                 break;
             case "dispatch":
                 BlockChainDB.checkDispatchSccess(funcName);
@@ -68492,11 +68501,14 @@ var BlockChainDB = (function () {
         });
     };
     BlockChainDB.checkPrayRainSuccess = function (funcName) {
+        var oldNum = BlockChainDB.Rain;
         BlockChainDB.pollingBlockChain("getRain", function (e) {
-            if (e != BlockChainDB.Rain) {
+            if (e != oldNum) {
                 BlockChainDB.syncActionPower(function () {
-                    BlockChainDB.Rain = e;
-                    BlockChainDB.events.push("你对着水桶进行了可怜的祈祷!");
+                    if (BlockChainDB.Rain < e) {
+                        BlockChainDB.Rain = e;
+                    }
+                    BlockChainDB.events.push(LanguageManager.gameObj["prayWater"]);
                     BlockChainDB.delayFinishCallBack(funcName);
                 });
                 return true;
@@ -68507,17 +68519,18 @@ var BlockChainDB = (function () {
     BlockChainDB.checkResourcesSuccess = function (funcName) {
         BlockChainDB.checkAssetChange(function (woodOff, waterOff, leekOff) {
             BlockChainDB.syncActionPower(function () {
-                BlockChainDB.events.push("你领取了今日的空投资源");
+                BlockChainDB.events.push(LanguageManager.gameObj["gotAsset"]);
                 BlockChainDB.delayFinishCallBack(funcName);
             });
         });
     };
     BlockChainDB.checkSupportSuccess = function (funcName) {
+        var monster = BlockChainDB.monster;
         BlockChainDB.pollingBlockChain("getMonster", function (e) {
-            if (BlockChainDB.monster != e) {
+            if (monster != e) {
                 BlockChainDB.monster = e;
                 BlockChainDB.syncActionPower(function () {
-                    BlockChainDB.events.push("你领取了今日的空投支援~怪物减少1");
+                    BlockChainDB.events.push(LanguageManager.gameObj["monsterReduce"]);
                     BlockChainDB.delayFinishCallBack(funcName);
                 });
                 return true;
@@ -68527,20 +68540,21 @@ var BlockChainDB = (function () {
     };
     BlockChainDB.checkSearchSuccess = function (funcName) {
         setTimeout(function () {
+            var old = BlockChainDB.actionPower[0];
             BlockChainDB.pollingBlockChain("getActionPower", function (e) {
-                if (BlockChainDB.actionPower[0] != e) {
+                if (old != e) {
                     BlockChainDB.actionPower[0] = e;
                     BlockChainDB.getBlockChainData("getDayState", function (info) {
                         if (info.searchPeople != BlockChainDB.dayState.searchPeople) {
-                            BlockChainDB.events.push("成功搜救了一名幸存者");
+                            BlockChainDB.events.push(LanguageManager.gameObj["saveSurvival"]);
                             var all = BlockChainDB.myPopulation[0] + 1;
                             var left = all - BlockChainDB.myPopulation[1];
                             if (left > 0) {
-                                BlockChainDB.events.push("居民宿舍人口上限不足，" + left + "位居民离开了");
+                                BlockChainDB.events.push(LanguageManager.gameObj["peopleUnEnough"] + left + LanguageManager.gameObj["peopleLeave"]);
                             }
                         }
                         else {
-                            BlockChainDB.events.push("未搜救到任何人!");
+                            BlockChainDB.events.push(LanguageManager.gameObj["notSurvival"]);
                         }
                         BlockChainDB.dayState.searchPeople = info.searchPeople;
                         BlockChainDB.getBlockChainData("getPeopleList", function (arr) {
@@ -68555,12 +68569,13 @@ var BlockChainDB = (function () {
         }, 2000);
     };
     BlockChainDB.checkRepairSuccess = function (funcName) {
+        var old = BlockChainDB.resistance[0];
         BlockChainDB.pollingBlockChain("getResistance", function (arr) {
-            if (BlockChainDB.resistance[0] != arr[0]) {
+            if (old != arr[0]) {
                 BlockChainDB.syncActionPower(function () {
                     BlockChainDB.resistance[0] = arr[0];
                     BlockChainDB.resistance[1] = arr[1];
-                    BlockChainDB.events.push("城墙被修复成新的一样！");
+                    BlockChainDB.events.push(LanguageManager.gameObj["newWall"]);
                     BlockChainDB.delayFinishCallBack(funcName);
                 });
                 return true;
@@ -68569,11 +68584,14 @@ var BlockChainDB = (function () {
         });
     };
     BlockChainDB.checkNewDay = function (funcName) {
+        var old = BlockChainDB.bornTime;
         BlockChainDB.pollingBlockChain("getMyDay", function (e) {
-            if (e != BlockChainDB.bornTime) {
-                BlockChainDB.bornTime = e;
+            if (e != old) {
+                if (BlockChainDB.bornTime < e) {
+                    BlockChainDB.bornTime = e;
+                }
                 BlockChainDB.dealWildAreaHappen(function () {
-                    BlockChainDB.events.push("新的一天到来了！");
+                    BlockChainDB.events.push(LanguageManager.gameObj["newDay"]);
                     BlockChainDB.dayState = { isRain: false, survival: 0, diePeople: 0, searchPeople: 0 };
                     BlockChainDB.delayFinishCallBack(funcName);
                 });
@@ -68585,18 +68603,18 @@ var BlockChainDB = (function () {
     BlockChainDB.dealWildAreaHappen = function (callBack) {
         BlockChainDB.getBlockChainData("getDayState", function (info) {
             if (info.isRain) {
-                BlockChainDB.events.push("下雨了~你的储水池被装满了！");
+                BlockChainDB.events.push(LanguageManager.gameObj["poolFull"]);
             }
             if (info.survival) {
                 var all = BlockChainDB.myPopulation[0] + info.survival - info.diePeople;
                 var left = all - BlockChainDB.myPopulation[1];
-                BlockChainDB.events.push("居民招募了" + info.survival + "位野生生存者!");
+                BlockChainDB.events.push(LanguageManager.gameObj["drawPeople"] + info.survival + LanguageManager.gameObj["survivorship!"]);
                 if (left > 0) {
-                    BlockChainDB.events.push("居民宿舍人口上限不足，" + left + "位居民离开了");
+                    BlockChainDB.events.push(LanguageManager.gameObj["popLimit"] + left + LanguageManager.gameObj["peopleLeave"]);
                 }
             }
             if (info.diePeople > 0) {
-                BlockChainDB.events.push(info.diePeople + "位居民被野生生存者杀死了！");
+                BlockChainDB.events.push(info.diePeople + LanguageManager.gameObj["killedBySurvivorship"]);
             }
             BlockChainDB.dayState = info;
             BlockChainDB.dealVegetable(callBack);
@@ -68609,11 +68627,12 @@ var BlockChainDB = (function () {
             BlockChainDB.myLeek[0] = arr[0];
             BlockChainDB.myLeek[1] = arr[1];
             if (off > 0) {
-                BlockChainDB.events.push("获得韭菜" + off + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["getleek"] + off + LanguageManager.gameObj["point"]);
             }
             else if (off < 0) {
-                BlockChainDB.events.push("消耗韭菜" + Math.abs(off) + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["costleek"] + Math.abs(off) + LanguageManager.gameObj["point"]);
             }
+            BlockChainDB.dealWooden(callBack);
         });
     };
     BlockChainDB.dealWooden = function (callBack) {
@@ -68622,10 +68641,10 @@ var BlockChainDB = (function () {
             BlockChainDB.myWood[0] = arr[0];
             BlockChainDB.myWood[1] = arr[1];
             if (off > 0) {
-                BlockChainDB.events.push("获得木头" + off + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["getwood"] + off + LanguageManager.gameObj["point"]);
             }
             else if (off < 0) {
-                BlockChainDB.events.push("消耗木头" + Math.abs(off) + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["costwood"] + Math.abs(off) + LanguageManager.gameObj["point"]);
             }
             BlockChainDB.dealWater(callBack);
         });
@@ -68636,10 +68655,10 @@ var BlockChainDB = (function () {
             BlockChainDB.myWater[0] = arr[0];
             BlockChainDB.myWater[1] = arr[1];
             if (off > 0) {
-                BlockChainDB.events.push("获得水" + off + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["getwater"] + off + LanguageManager.gameObj["point"]);
             }
             else if (off < 0) {
-                BlockChainDB.events.push("消耗水" + Math.abs(off) + "点！");
+                BlockChainDB.events.push(LanguageManager.gameObj["costwater"] + Math.abs(off) + LanguageManager.gameObj["point"]);
             }
             BlockChainDB.dealGate(callBack);
         });
@@ -68650,19 +68669,21 @@ var BlockChainDB = (function () {
             BlockChainDB.resistance[0] = arr[0];
             BlockChainDB.resistance[1] = arr[1];
             if (off > 0) {
-                BlockChainDB.events.push("你的城墙受了到怪物" + off + "点伤害！！");
+                BlockChainDB.events.push(LanguageManager.gameObj["wallbreak"] + off + LanguageManager.gameObj["hurt"]);
             }
             if (BlockChainDB.resistance[0] == 0) {
                 BlockChainDB.isGameOver = true;
-                BlockChainDB.events.push("你未能抵抗今天的怪物进攻，游戏结束！");
+                BlockChainDB.events.push(LanguageManager.gameObj["gameOverByMon"]);
                 return;
             }
             BlockChainDB.getBlockChainData("getPeopleList", function (arr) {
                 var stand = arr[1];
-                BlockChainDB.events.push("怪物被站岗者攻击减去了" + stand + "点生命值！");
+                BlockChainDB.peopleList = arr;
+                BlockChainDB.makePeopleList();
+                BlockChainDB.events.push(LanguageManager.gameObj["killMon"] + stand + LanguageManager.gameObj["hp"]);
                 BlockChainDB.getBlockChainData("getMonster", function (e) {
                     BlockChainDB.monster = e;
-                    BlockChainDB.events.push("怪物生命值增加至" + BlockChainDB.monster + "点！");
+                    BlockChainDB.events.push(LanguageManager.gameObj["addMon"] + BlockChainDB.monster + LanguageManager.gameObj["point"]);
                     BlockChainDB.getBlockChainData("getIsGameOver", function (e) {
                         BlockChainDB.isGameOver = e;
                         BlockChainDB.getBlockChainData("getMaxLiveDay", function (e) {
@@ -68675,32 +68696,36 @@ var BlockChainDB = (function () {
         });
     };
     BlockChainDB.checkUpgradeSccess = function (funcName, index) {
+        var old = BlockChainDB.BuildingGrade[index];
         BlockChainDB.pollingBlockChain("getBuildingGrade", function (grades) {
-            var old = BlockChainDB.BuildingGrade[index];
             var newGrade = grades[index];
             if (old == newGrade) {
                 return false;
             }
-            BlockChainDB.updateAssetChange(function () {
-                switch (index) {
-                    case 0:
-                        BlockChainDB.events.push("菜地升到了" + grades[index] + "级");
-                        break;
-                    case 1:
-                        BlockChainDB.events.push("住房升到了" + grades[index] + "级");
-                        break;
-                    case 2:
-                        BlockChainDB.events.push("水桶升到了" + grades[index] + "级");
-                        break;
-                    case 3:
-                        BlockChainDB.events.push("仓库升到了" + grades[index] + "级");
-                        break;
-                    case 4:
-                        BlockChainDB.events.push("城门升到了" + grades[index] + "级");
-                        break;
-                }
-                BlockChainDB.BuildingGrade = grades;
-                BlockChainDB.delayFinishCallBack(funcName);
+            BlockChainDB.getBlockChainData("getResistance", function (arr) {
+                BlockChainDB.resistance[0] = arr[0];
+                BlockChainDB.resistance[1] = arr[1];
+                BlockChainDB.updateAssetChange(function () {
+                    switch (index) {
+                        case 0:
+                            BlockChainDB.events.push(LanguageManager.gameObj["upgradegreens"] + grades[index] + LanguageManager.gameObj["singlelevel"]);
+                            break;
+                        case 1:
+                            BlockChainDB.events.push(LanguageManager.gameObj["upgradehouse"] + grades[index] + LanguageManager.gameObj["singlelevel"]);
+                            break;
+                        case 2:
+                            BlockChainDB.events.push(LanguageManager.gameObj["upgradebucket"] + grades[index] + LanguageManager.gameObj["singlelevel"]);
+                            break;
+                        case 3:
+                            BlockChainDB.events.push(LanguageManager.gameObj["upgradewarehouse"] + grades[index] + LanguageManager.gameObj["singlelevel"]);
+                            break;
+                        case 4:
+                            BlockChainDB.events.push(LanguageManager.gameObj["upgradegate"] + grades[index] + LanguageManager.gameObj["singlelevel"]);
+                            break;
+                    }
+                    BlockChainDB.BuildingGrade = grades;
+                    BlockChainDB.delayFinishCallBack(funcName);
+                });
             });
             return true;
         });
@@ -68710,7 +68735,7 @@ var BlockChainDB = (function () {
             var home = arr[0];
             if (home != BlockChainDB.peopleList[0]) {
                 BlockChainDB.syncActionPower(function () {
-                    BlockChainDB.events.push("居民被派去站岗了");
+                    BlockChainDB.events.push(LanguageManager.gameObj["peopleStand"]);
                     BlockChainDB.peopleList = arr;
                     BlockChainDB.makePeopleList();
                     BlockChainDB.delayFinishCallBack(funcName);
@@ -68743,8 +68768,9 @@ var BlockChainDB = (function () {
         BlockChainDB.pollingBlockChain("getPeopleList", function (arr) {
             var home = arr[0];
             if (home != BlockChainDB.peopleList[0]) {
-                BlockChainDB.events.push("居民从城墙上撤回了");
+                BlockChainDB.events.push(LanguageManager.gameObj["peopleStand"]);
                 BlockChainDB.peopleList = arr;
+                BlockChainDB.makePeopleList();
                 BlockChainDB.delayFinishCallBack(funcName);
                 return true;
             }
@@ -68755,8 +68781,9 @@ var BlockChainDB = (function () {
         BlockChainDB.pollingBlockChain("getPeopleList", function (arr) {
             var home = arr[0];
             if (home != BlockChainDB.peopleList[0]) {
-                BlockChainDB.events.push("居民被派去站岗了");
+                BlockChainDB.events.push(LanguageManager.gameObj["peopleRecall"]);
                 BlockChainDB.peopleList = arr;
+                BlockChainDB.makePeopleList();
                 BlockChainDB.delayFinishCallBack(funcName);
                 return true;
             }
@@ -68766,6 +68793,7 @@ var BlockChainDB = (function () {
     BlockChainDB.syncActionPower = function (callBack) {
         BlockChainDB.getBlockChainData("getActionPower", function (e) {
             BlockChainDB.actionPower[0] = e;
+            BlockChainDB.actionPower[1] = BlockChainDB.bornTime;
             callBack && callBack();
         });
     };
@@ -68838,6 +68866,7 @@ var BlockChainDB = (function () {
         setTimeout(BlockChainDB.finishCallBack, 0, funcName);
     };
     BlockChainDB.finishCallBack = function (funcName) {
+        UILogin.closeWarnUI();
         var funcArr = BlockChainDB.callBackMap[funcName];
         delete BlockChainDB.callBackMap[funcName];
         if (funcArr) {
@@ -68850,16 +68879,29 @@ var BlockChainDB = (function () {
     };
     BlockChainDB.pollingBlockChain = function (funcName, checkBack) {
         if (OperaBlockChain[funcName] != null) {
-            trace("查询 ", funcName);
             function callBack(e) {
-                trace("查询结果监测", funcName);
+                BlockChainDB.deleteProtectPolling(id_1);
                 if (checkBack(e) == false) {
-                    trace("监测失败");
                     setTimeout(BlockChainDB.pollingBlockChain, 5000, funcName, checkBack);
                 }
             }
+            var id_1 = BlockChainDB.protectPolling(funcName, checkBack);
             BlockChainDB.getBlockChainData(funcName, callBack);
         }
+    };
+    BlockChainDB.protectPolling = function (funcName, checkBack) {
+        BlockChainDB.protectID++;
+        var id = setTimeout(function (funcName, checkBack, protectID) {
+            BlockChainDB.deleteProtectPolling(protectID);
+            BlockChainDB.pollingBlockChain(funcName, checkBack);
+        }, 15000, funcName, checkBack, BlockChainDB.protectID);
+        BlockChainDB.protectMap[BlockChainDB.protectID] = id;
+        return BlockChainDB.protectID;
+    };
+    BlockChainDB.deleteProtectPolling = function (id) {
+        var time = BlockChainDB.protectMap[id];
+        clearTimeout(time);
+        delete BlockChainDB.protectMap[id];
     };
     BlockChainDB.getBlockChainData = function (funcName, callBack) {
         OperaBlockChain[funcName].apply(OperaBlockChain, [callBack]);
@@ -68871,6 +68913,8 @@ var BlockChainDB = (function () {
     BlockChainDB.resistance = [5, 5];
     BlockChainDB.dayState = { isRain: false, survival: 0, diePeople: 0, searchPeople: 0 };
     BlockChainDB.callBackMap = {};
+    BlockChainDB.protectMap = {};
+    BlockChainDB.protectID = 0;
     return BlockChainDB;
 }());
 //@cannot search
@@ -69914,7 +69958,6 @@ var TreeRender = (function (_super) {
 
 
 var View = laya.ui.View;
-var Dialog = laya.ui.Dialog;
 var SCUI;
 (function (SCUI) {
     var ui;
@@ -69931,7 +69974,7 @@ var SCUI;
                     _super.prototype.createChildren.call(this);
                     this.createView(SCUI.ui.Hall.hallUI.uiView);
                 };
-                hallUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Image", "props": { "var": "bg", "top": 0, "skin": "asset/game/游戏背景.png", "right": 0, "left": 224, "bottom": 0 } }, { "type": "Box", "props": { "var": "uiBox", "top": 0, "right": 0, "mouseThrough": true, "left": 0, "bottom": 0 }, "child": [{ "type": "Image", "props": { "y": 93, "x": 398, "width": 332, "var": "vegetableGarden", "skin": "asset/game/菜园.png", "height": 245 } }, { "type": "Image", "props": { "y": 56, "x": 686, "width": 704, "var": "room", "skin": "asset/game/住房.png", "height": 288 } }, { "type": "Image", "props": { "y": 344, "x": 384, "width": 237, "var": "waterStorageTank", "skin": "asset/game/储水池.png", "height": 205 } }, { "type": "Image", "props": { "y": 292, "x": 1054, "width": 275, "var": "warehouse", "skin": "asset/game/仓库.png", "height": 214 } }, { "type": "Image", "props": { "y": 355, "x": 260, "width": 112, "var": "passageway", "skin": "asset/game/连接通道.png", "height": 178 } }, { "type": "Image", "props": { "width": 549, "top": 0, "skin": "asset/game/奖金池.png", "sizeGrid": "0,64,0,0", "left": 224, "height": 47 } }, { "type": "Image", "props": { "y": 0, "x": 851, "top": 0, "skin": "asset/game/道具统计.png", "right": 0 } }, { "type": "Box", "props": { "var": "eventBg", "top": 50, "right": 0, "bottom": 475 }, "child": [{ "type": "Image", "props": { "width": 491, "top": 0, "skin": "asset/game/black.png", "right": 0, "bottom": 0, "alpha": 0.4 } }, { "type": "TextArea", "props": { "wordWrap": false, "width": 491, "var": "show", "top": 0, "overflow": "hidden", "mouseThrough": true, "mouseEnabled": false, "left": 0, "fontSize": 15, "editable": false, "color": "#00ff14", "bottom": 0, "align": "right" } }, { "type": "Image", "props": { "y": 50, "x": 0, "width": 20, "var": "eventBackBtn", "top": 0, "skin": "asset/game/black.png", "left": 0, "bottom": 0, "alpha": 1 }, "child": [{ "type": "Label", "props": { "width": 20, "var": "eventBackText", "valign": "middle", "text": ">>", "height": 20, "fontSize": 15, "color": "#ffffff", "centerY": 0.5, "align": "center" } }] }] }, { "type": "menu", "props": { "var": "menu", "top": 0, "left": 0, "runtime": "SCUI.ui.Popup.menuUI" } }, { "type": "Image", "props": { "y": 572, "x": 441, "width": 744, "var": "wall", "skin": "asset/game/城墙.png", "height": 228 } }, { "type": "Box", "props": { "y": 537, "x": 297, "width": 1032, "var": "standGuardBox", "mouseThrough": true, "height": 118 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 154, "visible": false, "var": "leftMan", "skin": "asset/game/左炮台.png", "height": 118 } }, { "type": "Image", "props": { "y": -2, "x": 875, "width": 155, "visible": false, "var": "rightMan", "skin": "asset/game/右炮台.png", "height": 119 } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 154, "var": "leftNull", "skin": "asset/game/左炮台空.png", "height": 118 } }, { "type": "Image", "props": { "y": -2, "x": 875, "width": 155, "var": "rightNull", "skin": "asset/game/右炮台空.png", "height": 119 } }] }, { "type": "Image", "props": { "y": -1, "width": 50, "var": "InstructionsBtn", "skin": "asset/game/窗口底板.png", "sizeGrid": "4,4,4,4", "left": 787, "height": 50 }, "child": [{ "type": "Label", "props": { "valign": "middle", "top": 0, "text": "?", "right": 0, "left": 0, "fontSize": 30, "color": "#ffffff", "bottom": 0, "align": "center" } }] }, { "type": "Image", "props": { "y": 653, "x": 680, "width": 279, "var": "monster", "skin": "asset/game/生存游戏怪物.png", "height": 181 } }, { "type": "ProgressBar", "props": { "y": 580, "width": 200, "var": "wallHP", "skin": "comp/血条.png", "sizeGrid": "4,4,4,4", "left": 700, "height": 20 }, "child": [{ "type": "Label", "props": { "y": -1, "x": 209, "width": 100, "var": "wallHpText", "text": "100", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "left" } }] }, { "type": "ProgressBar", "props": { "y": 742, "width": 200, "var": "monsterHP", "skin": "comp/血条.png", "sizeGrid": "4,4,4,4", "left": 700, "height": 20 }, "child": [{ "type": "Label", "props": { "y": -1, "x": 209, "width": 100, "var": "monsterHptext", "text": "100", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "left" } }] }, { "type": "Image", "props": { "y": 382, "x": 569, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "waterStorageTankLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 361, "x": 1230, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "warehouseLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 114, "x": 778, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "roomLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 206, "x": 502, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "vegetableGardenLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 555, "x": 1016, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "wallLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }] }, { "type": "Box", "props": { "width": 1145, "top": 6, "right": 20, "height": 30 }, "child": [{ "type": "Label", "props": { "width": 100, "top": 3, "text": "生存时间：", "left": 10, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "韭菜：", "right": 410, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "人口:", "right": 290, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "木头:", "right": 170, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 30, "top": 3, "text": "水:", "right": 70, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 70, "var": "leek", "top": 5, "right": 340, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "population", "top": 5, "right": 220, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "wood", "top": 5, "right": 100, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "water", "top": 5, "right": 0, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 40, "var": "myDay", "top": 5, "left": 100, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "top": 3, "text": "明日降雨率：", "left": 310, "height": 25, "fontSize": 20, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 40, "var": "rain", "top": 5, "left": 430, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 10, "width": 80, "top": 3, "text": "行动力：", "left": 165, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 40, "var": "actionPower", "top": 5, "left": 240, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "var": "pass", "top": 0, "skin": "asset/game/black.png", "right": 0, "left": 0, "bottom": 0, "alpha": 0 } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 1400, "var": "warning", "skin": "asset/game/红色警戒.png", "height": 800, "alpha": 0 } }] };
+                hallUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Image", "props": { "var": "bg", "top": 0, "skin": "asset/game/游戏背景.png", "right": 0, "left": 224, "bottom": 0 } }, { "type": "Box", "props": { "var": "uiBox", "top": 0, "right": 0, "mouseThrough": true, "left": 0, "bottom": 0 }, "child": [{ "type": "Image", "props": { "y": 93, "x": 398, "width": 332, "var": "vegetableGarden", "skin": "asset/game/菜园.png", "height": 245 } }, { "type": "Image", "props": { "y": 56, "x": 686, "width": 704, "var": "room", "skin": "asset/game/住房.png", "height": 288 } }, { "type": "Image", "props": { "y": 344, "x": 384, "width": 237, "var": "waterStorageTank", "skin": "asset/game/储水池.png", "height": 205 } }, { "type": "Image", "props": { "y": 292, "x": 1054, "width": 275, "var": "warehouse", "skin": "asset/game/仓库.png", "height": 214 } }, { "type": "Image", "props": { "y": 355, "x": 260, "width": 112, "var": "passageway", "skin": "asset/game/连接通道.png", "height": 178 } }, { "type": "Image", "props": { "width": 549, "top": 0, "skin": "asset/game/奖金池.png", "sizeGrid": "0,64,0,0", "left": 224, "height": 47 } }, { "type": "Image", "props": { "y": 0, "x": 851, "top": 0, "skin": "asset/game/道具统计.png", "right": 0 } }, { "type": "Box", "props": { "var": "eventBg", "top": 50, "right": 0, "bottom": 475 }, "child": [{ "type": "Image", "props": { "width": 491, "top": 0, "skin": "asset/game/black.png", "right": 0, "bottom": 0, "alpha": 0.4 } }, { "type": "TextArea", "props": { "wordWrap": false, "width": 491, "var": "show", "top": 0, "overflow": "hidden", "mouseThrough": true, "mouseEnabled": false, "left": 0, "fontSize": 15, "editable": false, "color": "#00ff14", "bottom": 0, "align": "right" } }, { "type": "Image", "props": { "y": 50, "x": 0, "width": 20, "var": "eventBackBtn", "top": 0, "skin": "asset/game/black.png", "left": 0, "bottom": 0, "alpha": 1 }, "child": [{ "type": "Label", "props": { "width": 20, "var": "eventBackText", "valign": "middle", "text": ">>", "height": 20, "fontSize": 15, "color": "#ffffff", "centerY": 0.5, "align": "center" } }] }] }, { "type": "menu", "props": { "var": "menu", "top": 0, "left": 0, "runtime": "SCUI.ui.Popup.menuUI" } }, { "type": "Image", "props": { "y": 572, "x": 441, "width": 744, "var": "wall", "skin": "asset/game/城墙.png", "height": 228 } }, { "type": "Box", "props": { "y": 537, "x": 297, "width": 1032, "var": "standGuardBox", "mouseThrough": true, "height": 118 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 154, "visible": false, "var": "leftMan", "skin": "asset/game/左炮台.png", "height": 118 } }, { "type": "Image", "props": { "y": -2, "x": 875, "width": 155, "visible": false, "var": "rightMan", "skin": "asset/game/右炮台.png", "height": 119 } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 154, "var": "leftNull", "skin": "asset/game/左炮台空.png", "height": 118 } }, { "type": "Image", "props": { "y": -2, "x": 875, "width": 155, "var": "rightNull", "skin": "asset/game/右炮台空.png", "height": 119 } }] }, { "type": "Image", "props": { "y": -1, "width": 50, "var": "InstructionsBtn", "skin": "asset/game/窗口底板.png", "sizeGrid": "4,4,4,4", "left": 787, "height": 50 }, "child": [{ "type": "Label", "props": { "valign": "middle", "top": 0, "text": "?", "right": 0, "left": 0, "fontSize": 30, "color": "#ffffff", "bottom": 0, "align": "center" } }] }, { "type": "Image", "props": { "y": 653, "x": 680, "width": 279, "var": "monster", "skin": "asset/game/生存游戏怪物.png", "height": 181 } }, { "type": "ProgressBar", "props": { "y": 580, "width": 200, "var": "wallHP", "skin": "comp/血条.png", "sizeGrid": "4,4,4,4", "left": 700, "height": 20 }, "child": [{ "type": "Label", "props": { "y": -1, "x": 209, "width": 100, "var": "wallHpText", "text": "100", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "left" } }] }, { "type": "ProgressBar", "props": { "y": 742, "width": 200, "var": "monsterHP", "skin": "comp/血条.png", "sizeGrid": "4,4,4,4", "left": 700, "height": 20 }, "child": [{ "type": "Label", "props": { "y": -1, "x": 209, "width": 100, "var": "monsterHptext", "text": "100", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "left" } }] }, { "type": "Image", "props": { "y": 382, "x": 569, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "waterStorageTankLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 361, "x": 1230, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "warehouseLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 114, "x": 778, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "roomLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 206, "x": 502, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "vegetableGardenLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }, { "type": "Image", "props": { "y": 555, "x": 1016, "width": 109, "skin": "asset/game/LV.png", "height": 49 }, "child": [{ "type": "Label", "props": { "y": -15, "x": 44, "var": "wallLV", "valign": "middle", "text": "LV.0", "fontSize": 20, "color": "#ffffff", "bold": false, "align": "center" } }] }] }, { "type": "Box", "props": { "width": 1145, "top": 6, "right": 20, "height": 30 }, "child": [{ "type": "Label", "props": { "width": 100, "top": 3, "text": "生存时间：", "left": 10, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "韭菜：", "right": 410, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "人口:", "right": 290, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 50, "top": 3, "text": "木头:", "right": 170, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 30, "top": 3, "text": "水:", "right": 70, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 70, "var": "leek", "top": 5, "right": 340, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "population", "top": 5, "right": 220, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "wood", "top": 5, "right": 100, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 70, "var": "water", "top": 5, "right": 0, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 40, "var": "myDay", "top": 5, "left": 100, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "top": 3, "text": "明日降雨率：", "left": 310, "height": 25, "fontSize": 20, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "width": 40, "var": "rain", "top": 5, "left": 430, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 10, "width": 80, "top": 3, "text": "行动力：", "left": 165, "height": 25, "fontSize": 20, "color": "#ffffff" } }, { "type": "Label", "props": { "width": 40, "var": "actionPower", "top": 5, "left": 240, "height": 20, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "var": "pass", "top": 0, "skin": "asset/game/black.png", "right": 0, "left": 0, "bottom": 0, "alpha": 0 } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 1400, "var": "warning", "skin": "asset/game/红色警戒.png", "height": 800, "alpha": 0 } }, { "type": "Box", "props": { "visible": false, "var": "loading", "top": 0, "right": 0, "left": 0, "bottom": 0 }, "child": [{ "type": "Image", "props": { "x": 0, "top": 0, "skin": "asset/game/black.png", "right": 0, "left": 0, "bottom": 0, "alpha": 0.6 } }, { "type": "Label", "props": { "y": 0, "x": 0, "valign": "middle", "top": 0, "text": "正在获取区块链数据...", "right": 0, "left": 0, "fontSize": 40, "color": "#ffffff", "bottom": 0, "align": "center" } }] }] };
                 return hallUI;
             }(View));
             Hall.hallUI = hallUI;
@@ -69975,7 +70018,7 @@ var SCUI;
                     _super.prototype.createChildren.call(this);
                     this.createView(SCUI.ui.Login.loginUI.uiView);
                 };
-                loginUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Image", "props": { "y": -100, "x": 0, "width": 1400, "top": -100, "skin": "asset/game/生存游戏标题.png", "left": 0, "height": 984 } }, { "type": "Button", "props": { "y": 478, "x": 552, "width": 314, "var": "loginBtn", "skin": "comp/start.png", "height": 145 } }, { "type": "TextInput", "props": { "y": 706, "width": 500, "var": "address", "skin": "comp/textinput.png", "sizeGrid": "3,3,3,3", "promptColor": "#000000", "height": 46, "fontSize": 20, "color": "#000000", "centerX": 0.5 } }, { "type": "Label", "props": { "y": 678, "x": 451, "width": 160, "text": "输入你的钱包地址用于创建你的区块链游戏账户:", "height": 20, "fontSize": 20, "color": "#ffffff" } }] };
+                loginUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Image", "props": { "y": -100, "x": 0, "width": 1400, "top": -100, "skin": "asset/game/生存游戏标题.png", "left": 0, "height": 984 } }, { "type": "Button", "props": { "y": 478, "x": 552, "width": 314, "var": "loginBtn", "skin": "comp/start.png", "height": 145 } }, { "type": "TextInput", "props": { "y": 706, "width": 500, "var": "address", "skin": "comp/textinput.png", "sizeGrid": "3,3,3,3", "promptColor": "#000000", "height": 46, "fontSize": 20, "color": "#000000", "centerX": 0.5 } }, { "type": "Label", "props": { "y": 650, "x": 452, "width": 609, "text": "输入你的钱包地址用于创建你的区块链游戏账户\\n(Enter your wallet address to create blockchain game account):", "leading": 5, "height": 54, "fontSize": 20, "color": "#ffffff" } }] };
                 return loginUI;
             }(View));
             Login.loginUI = loginUI;
@@ -70063,7 +70106,7 @@ var SCUI;
                     _super.prototype.createChildren.call(this);
                     this.createView(SCUI.ui.Popup.instructionsUI.uiView);
                 };
-                instructionsUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Box", "props": { "top": 150, "right": 200, "left": 200, "bottom": 150 }, "child": [{ "type": "Image", "props": { "top": 0, "skin": "asset/game/窗口底板.png", "right": 0, "left": 0, "bottom": 0 } }, { "type": "Image", "props": { "y": -85, "x": 1272, "var": "closeBtn", "top": 15, "skin": "asset/game/关闭.png", "right": 15 } }, { "type": "Label", "props": { "valign": "middle", "top": 50, "text": "游戏说明", "right": 0, "left": 0, "fontSize": 50, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "wordWrap": true, "width": 850, "var": "instructions1", "top": 140, "text": "1、怪物攻破城墙会导致游戏结束。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "x": 10, "wordWrap": true, "width": 850, "top": 190, "text": "2、韭菜和水不满足人口需求会导致游戏结束。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "x": 20, "wordWrap": true, "width": 850, "top": 240, "text": "3、每个人每天需要1个韭菜和水。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "x": 30, "wordWrap": true, "width": 850, "top": 290, "text": "4、你可以升级建筑。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "x": 40, "wordWrap": true, "width": 850, "top": 340, "text": "5、可以安排人员外出去探险。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "x": 50, "wordWrap": true, "width": 850, "top": 390, "text": "6、可以安排人员站岗，每天每个人可以击杀怪物1点血。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }] };
+                instructionsUI.uiView = { "type": "View", "props": { "width": 1400, "height": 800 }, "child": [{ "type": "Box", "props": { "top": 150, "right": 200, "left": 200, "bottom": 150 }, "child": [{ "type": "Image", "props": { "top": 0, "skin": "asset/game/窗口底板.png", "right": 0, "left": 0, "bottom": 0 } }, { "type": "Image", "props": { "y": -85, "x": 1272, "var": "closeBtn", "top": 15, "skin": "asset/game/关闭.png", "right": 15 } }, { "type": "Label", "props": { "valign": "middle", "top": 50, "text": "游戏说明", "right": 0, "left": 0, "fontSize": 50, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 130, "wordWrap": true, "width": 850, "var": "instructions1", "text": "1、怪物攻破城墙会导致游戏结束。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 180, "wordWrap": true, "width": 850, "var": "instructions2", "text": "2、韭菜和水不满足人口需求会导致游戏结束。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 230, "wordWrap": true, "width": 850, "var": "instructions3", "text": "3、每个人每天需要1个韭菜和水。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 280, "wordWrap": true, "width": 850, "var": "instructions4", "text": "4、你可以升级建筑。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 330, "wordWrap": true, "width": 850, "var": "instructions5", "text": "5、可以安排人员外出去探险。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 380, "wordWrap": true, "width": 850, "var": "instructions6", "text": "6、可以安排人员站岗，每天每个人可以击杀怪物1点血。", "right": 75, "left": 75, "height": 35, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }] };
                 return instructionsUI;
             }(View));
             Popup.instructionsUI = instructionsUI;
@@ -70684,14 +70727,14 @@ var LGBlockChain = (function () {
             onFin && onFin.runWith(true);
         }
     };
-    LGBlockChain.realBlockChain = false;
+    LGBlockChain.realBlockChain = true;
     return LGBlockChain;
 }());
 var Config = (function () {
     function Config() {
     }
     Config.curLanguageType = 1;
-    Config.PREFIX_PATH = "asset/Json/language/";
+    Config.PREFIX_PATH = "asset/json/language/";
     Config.LANGUAGE_TYPE = { "0": "CN", "1": "EN" };
     return Config;
 }());
@@ -70766,7 +70809,21 @@ var UIInstructions = (function (_super) {
         this.init();
     }
     UIInstructions.prototype.init = function () {
+        this.labelArr = [];
+        this.labelArr.push(this.instructions1, this.instructions2, this.instructions3, this.instructions4, this.instructions5, this.instructions6);
+        this.adjustPos();
         this.closeBtn.add_CLICK(this.onClose, this);
+    };
+    UIInstructions.prototype.adjustPos = function () {
+        for (var i = 1; i < this.labelArr.length; i++) {
+            var curLabel = this.labelArr[i];
+            if (i == 2) {
+                curLabel.y = this.labelArr[i - 1].y + 70 + 10;
+            }
+            else {
+                curLabel.y = this.labelArr[i - 1].y + this.labelArr[i - 1].measureHeight + 10;
+            }
+        }
     };
     UIInstructions.prototype.onClose = function (e) {
         this.parent.removeChild(this);
@@ -70838,18 +70895,46 @@ var UILogin = (function (_super) {
         _super.call(this);
         this.manager = manager;
         this.warn = new UIWarning();
+        UILogin.instance = this;
         this.init();
     }
     UILogin.prototype.init = function () {
         SoundManager.playMusic("asset/sound/Meanwhile in another Planet.mp3");
         this.loginBtn.add_CLICK(this.onClick, this);
     };
-    UILogin.prototype.addWarn = function () {
-        this.warn.setContent("设置你要的警告内容！！！！！！");
+    UILogin.prototype.addWarn = function (str) {
+        this.warn.setContent(str);
         stage.addChild(this.warn);
     };
     UILogin.prototype.onClick = function (e) {
-        this.manager.addProcess();
+        if (LGBlockChain.realBlockChain) {
+            BlockChainDB.init();
+            var _this_1 = this;
+            OperaBlockChain.sendTips = function (str) {
+                _this_1.addWarn(str);
+            };
+            var address = this.address.text;
+            if (address != null && address != "") {
+                BlockChainDB.loginGame(address, function () {
+                    _this_1.warn.removeThis();
+                    _this_1.manager.addProcess();
+                });
+            }
+            else {
+                this.addWarn("无效地址！！！\nInvalid address!!!");
+            }
+        }
+        else {
+            this.manager.addProcess();
+        }
+    };
+    UILogin.prototype.closeWarn = function () {
+        this.warn.removeThis();
+    };
+    UILogin.closeWarnUI = function () {
+        if (UILogin.instance) {
+            UILogin.instance.closeWarn();
+        }
     };
     return UILogin;
 }(SCUI.ui.Login.loginUI));
@@ -70930,11 +71015,21 @@ var UIHall = (function (_super) {
         this.warn = new UIWarning(this.manager);
         this.threat = new UIThreat(this.uiBox);
         this.threat.right = this.threat.bottom = 20;
-        this.init();
-        this.menuInit();
-        this.raining();
-        timer.frameLoop(20, this, this.monsterAction);
-        timer.frameLoop(100, this, this.standGuardAction);
+        if (LGBlockChain.realBlockChain) {
+            this.addChild(this.warn);
+            var _this = this;
+            this.warn.setContent(LanguageManager.gameObj["initialization"]);
+            this.warn.setFunBack(function () {
+                _this.loading.visible = true;
+                BlockChainDB.createPlayer(function () {
+                    _this.init();
+                    _this.loading.visible = false;
+                });
+            });
+        }
+        else {
+            this.init();
+        }
     }
     UIHall.prototype.init = function () {
         this.room.add_MOUSEOVER(this.addFilter, this);
@@ -70962,6 +71057,10 @@ var UIHall = (function (_super) {
         this.eventBackBtn.add_CLICK(this.onClickEventBg, this);
         LGBlockChain.init();
         this.creatTimeout();
+        this.menuInit();
+        this.raining();
+        timer.frameLoop(20, this, this.monsterAction);
+        timer.frameLoop(100, this, this.standGuardAction);
         this.addChild(this.instructions);
     };
     UIHall.prototype.menuInit = function () {
@@ -71066,7 +71165,7 @@ var UIHall = (function (_super) {
     UIHall.prototype.onC5 = function (e) {
         this.addChild(this.tips);
         this.tips.setStyle("搜救");
-        this.tips.setContent("是否需要消耗" + 2 + "点的行动力进行搜救？(有几率获得新的居民)");
+        this.tips.setContent(LanguageManager.gameObj["costAction"] + 2 + "点的行动力进行搜救？(有几率获得新的居民)");
     };
     UIHall.prototype.onC7 = function (e) {
         this.addChild(this.tips);
@@ -71131,43 +71230,45 @@ var UIHall = (function (_super) {
     };
     UIHall.prototype.updateInfo = function () {
         if (this.nowSeclect == 0) {
-            this.menu.buildingName.text = "韭菜养殖地";
-            this.menu.buildingCondition.text = "木头X" + (2 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
-            this.menu.buildingExplain.text = "      初始化最大韭菜上限为10，每日产出1+韭菜养殖地等级的韭菜(当前产出量:" + (1 + (Number(LocalGameData.buildingGrade[this.nowSeclect]))) + ")，升级可以提高5点的韭菜上限。";
+            this.menu.buildingName.text = LanguageManager.gameObj["leekArea"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["woodX"] + (2 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
+            this.menu.buildingExplain.text = LanguageManager.gameObj["leekTip"] + (1 + (Number(LocalGameData.buildingGrade[this.nowSeclect]))) + LanguageManager.gameObj["leekTip2"];
         }
         else if (this.nowSeclect == 1) {
-            this.menu.buildingName.text = "居民宿舍";
-            this.menu.buildingCondition.text = "木头X" + (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
-            this.menu.buildingExplain.text = "      初始最大居民人口上限为1，升级可提高居民宿舍等级*1的最大居民人口上限。";
+            this.menu.buildingName.text = LanguageManager.gameObj["dorm"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["woodX"] + (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
+            this.menu.buildingExplain.text = LanguageManager.gameObj["dormTip"];
         }
         else if (this.nowSeclect == 2) {
-            this.menu.buildingName.text = "储水池";
-            this.menu.buildingCondition.text = "木头X" + (3 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
-            this.menu.buildingExplain.text = "      初始最大水容量上限为10，升级可提升储水池5+储水池等级*5点的最大水容量上限。";
+            this.menu.buildingName.text = LanguageManager.gameObj["waterPool"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["woodX"] + (3 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
+            this.menu.buildingExplain.text = LanguageManager.gameObj["waterPoolTip"];
         }
         else if (this.nowSeclect == 3) {
-            this.menu.buildingName.text = "仓库";
-            this.menu.buildingCondition.text = "木头X" + (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
-            this.menu.buildingExplain.text = "      初始最大木头容量上限为20，升级可提升仓库10+仓库等级*10点的最大木头容量上限。";
+            this.menu.buildingName.text = LanguageManager.gameObj["warehouse"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["woodX"] + (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2));
+            this.menu.buildingExplain.text = LanguageManager.gameObj["warehouseTip"];
         }
         else if (this.nowSeclect == 4) {
-            this.menu.funBtn.label = "修复";
-            this.menu.buildingName.text = "城墙";
-            this.menu.buildingCondition.text = "木头X" + (2 + Number(LocalGameData.buildingGrade[this.nowSeclect]));
-            this.menu.buildingExplain.text = "      初始最大城墙坚固程度为10，升级可提升城墙3点的最大坚固程度。城墙坚固程度一旦到达0则游戏结束。";
+            this.menu.funBtn.label = LanguageManager.gameObj["repair"];
+            this.menu.buildingName.text = LanguageManager.gameObj["Gate"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["woodX"] + (2 + Number(LocalGameData.buildingGrade[this.nowSeclect]));
+            this.menu.buildingExplain.text = LanguageManager.gameObj["GateTip"];
         }
         else if (this.nowSeclect == 5) {
-            this.menu.monsterExplain.text = "      怪物攻击力和当前生命值相等，每新的一天怪物生命值会提高相当于当前天数的生命值，并对城墙造成等同的攻击力伤害。";
+            this.menu.monsterExplain.text = LanguageManager.gameObj["monsterInfo"];
         }
         else if (this.nowSeclect == 6) {
-            this.menu.buildingName.text = "连接通道";
-            this.menu.buildingCondition.text = "无需升级";
-            this.menu.buildingExplain.text = "      通往外界的连接通道，可以派遣空闲居民进行探索，有一定几率找到资源，甚至招募其他居民，但居民也同样承载死亡的危险。";
+            this.menu.buildingName.text = LanguageManager.gameObj["linkChannel"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["notUpgrade"];
+            ;
+            this.menu.buildingExplain.text = LanguageManager.gameObj["channelTip"];
         }
         else if (this.nowSeclect == 7) {
-            this.menu.buildingName.text = "城墙岗位";
-            this.menu.buildingCondition.text = "无需升级";
-            this.menu.buildingExplain.text = "      可以安排空闲居民在城墙上站岗，每有一个居民站岗，第二天初始可消减怪物站岗人数*1的生命值。";
+            this.menu.buildingName.text = LanguageManager.gameObj["wallPost"];
+            this.menu.buildingCondition.text = LanguageManager.gameObj["notUpgrade"];
+            ;
+            this.menu.buildingExplain.text = LanguageManager.gameObj["wallPostTip"];
         }
         var surplus = 0;
         if (this.nowSeclect == 6) {
@@ -71176,7 +71277,7 @@ var UIHall = (function (_super) {
                     surplus++;
                 }
             }
-            this.menu.buildingGrade.text = "(剩余可派遣人数:" + surplus + ")";
+            this.menu.buildingGrade.text = LanguageManager.gameObj["remainPeople"] + surplus + ")";
         }
         else if (this.nowSeclect == 7) {
             for (var i = 0; i < LocalGameData.residentList.length; i++) {
@@ -71184,10 +71285,10 @@ var UIHall = (function (_super) {
                     surplus++;
                 }
             }
-            this.menu.buildingGrade.text = "(当前站岗人数:" + surplus + ")";
+            this.menu.buildingGrade.text = LanguageManager.gameObj["standingCount"] + surplus + ")";
         }
         else {
-            this.menu.buildingGrade.text = "(LV." + LocalGameData.buildingGrade[this.nowSeclect] + "级)";
+            this.menu.buildingGrade.text = "(LV." + LocalGameData.buildingGrade[this.nowSeclect] + LanguageManager.gameObj["level"];
         }
         this.waterStorageTankLV.text = "LV." + LocalGameData.buildingGrade[2];
         this.warehouseLV.text = "LV." + LocalGameData.buildingGrade[3];
@@ -71200,7 +71301,7 @@ var UIHall = (function (_super) {
         this.menu.funBtn.visible = false;
         switch (this.nowSeclect) {
             case 0:
-                this.menu.plusBtn.label = "升级";
+                this.menu.plusBtn.label = LanguageManager.gameObj["levelUp"];
                 if (Number(LocalGameData.wood[0]) >= (2 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2))) {
                     this.menu.plusBtn.disabled = false;
                 }
@@ -71209,7 +71310,7 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 1:
-                this.menu.plusBtn.label = "升级";
+                this.menu.plusBtn.label = LanguageManager.gameObj["levelUp"];
                 if (Number(LocalGameData.wood[0]) >= (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2))) {
                     this.menu.plusBtn.disabled = false;
                 }
@@ -71218,7 +71319,7 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 2:
-                this.menu.plusBtn.label = "升级";
+                this.menu.plusBtn.label = LanguageManager.gameObj["levelUp"];
                 if (Number(LocalGameData.wood[0]) >= (3 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2))) {
                     this.menu.plusBtn.disabled = false;
                 }
@@ -71227,7 +71328,7 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 3:
-                this.menu.plusBtn.label = "升级";
+                this.menu.plusBtn.label = LanguageManager.gameObj["levelUp"];
                 if (Number(LocalGameData.wood[0]) >= (5 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2))) {
                     this.menu.plusBtn.disabled = false;
                 }
@@ -71236,8 +71337,8 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 4:
-                this.menu.plusBtn.label = "升级";
-                this.menu.funBtn.label = "修复";
+                this.menu.plusBtn.label = LanguageManager.gameObj["levelUp"];
+                this.menu.funBtn.label = LanguageManager.gameObj["repair"];
                 this.menu.funBtn.visible = true;
                 if (Number(LocalGameData.wood[0]) >= (2 + Number(LocalGameData.buildingGrade[this.nowSeclect]))) {
                     this.menu.plusBtn.disabled = false;
@@ -71253,7 +71354,7 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 6:
-                this.menu.plusBtn.label = "派遣";
+                this.menu.plusBtn.label = LanguageManager.gameObj["dispatch"];
                 var surplus = 0;
                 for (var i = 0; i < LocalGameData.residentList.length; i++) {
                     if (LocalGameData.residentList[i].residentState == 0) {
@@ -71268,8 +71369,9 @@ var UIHall = (function (_super) {
                 }
                 break;
             case 7:
-                this.menu.plusBtn.label = "站岗";
-                this.menu.funBtn.label = "撤回";
+                this.menu.plusBtn.label = LanguageManager.gameObj["stand"];
+                ;
+                this.menu.funBtn.label = LanguageManager.gameObj["recall"];
                 this.menu.funBtn.visible = true;
                 var surplus = 0;
                 for (var i = 0; i < LocalGameData.residentList.length; i++) {
@@ -71302,7 +71404,7 @@ var UIHall = (function (_super) {
         switch (this.nowSeclect) {
             case -1:
                 this.addChild(this.warn);
-                this.warn.setContent("请选择一个建筑物！");
+                this.warn.setContent(LanguageManager.gameObj["chooseBuilding"]);
                 break;
             case 0:
                 if (Number(LocalGameData.wood[0]) >= (2 + Math.floor(Number(LocalGameData.buildingGrade[this.nowSeclect]) / 2))) {
@@ -71312,7 +71414,7 @@ var UIHall = (function (_super) {
                 }
                 else {
                     this.addChild(this.warn);
-                    this.warn.setContent("请确保拥有升级所需的资源！");
+                    this.warn.setContent(LanguageManager.gameObj["upgradeWarn"]);
                 }
                 break;
             case 1:
@@ -71323,7 +71425,7 @@ var UIHall = (function (_super) {
                 }
                 else {
                     this.addChild(this.warn);
-                    this.warn.setContent("请确保拥有升级所需的资源！");
+                    this.warn.setContent(LanguageManager.gameObj["upgradeWarn"]);
                 }
                 break;
             case 2:
@@ -71334,7 +71436,7 @@ var UIHall = (function (_super) {
                 }
                 else {
                     this.addChild(this.warn);
-                    this.warn.setContent("请确保拥有升级所需的资源！");
+                    this.warn.setContent(LanguageManager.gameObj["upgradeWarn"]);
                 }
                 break;
             case 3:
@@ -71345,7 +71447,7 @@ var UIHall = (function (_super) {
                 }
                 else {
                     this.addChild(this.warn);
-                    this.warn.setContent("请确保拥有升级所需的资源！");
+                    this.warn.setContent(LanguageManager.gameObj["upgradeWarn"]);
                 }
                 break;
             case 4:
@@ -71356,7 +71458,7 @@ var UIHall = (function (_super) {
                 }
                 else {
                     this.addChild(this.warn);
-                    this.warn.setContent("请确保拥有升级所需的资源！");
+                    this.warn.setContent(LanguageManager.gameObj["upgradeWarn"]);
                 }
                 break;
             case 6:
@@ -71381,8 +71483,8 @@ var UIHall = (function (_super) {
         switch (this.nowSeclect) {
             case 4:
                 this.addChild(this.tips);
-                this.tips.setStyle("修复");
-                this.tips.setContent("是否需要消耗" + Math.min((Number(LocalGameData.resistance[1]) - Math.floor(Number(LocalGameData.resistance[0])) / 2), 10) + "个木头修复城墙" + Math.min(Number(LocalGameData.resistance[1]) - Number(LocalGameData.resistance[0]), 20) + "的坚固度?");
+                this.tips.setStyle(LanguageManager.gameObj["repair"]);
+                this.tips.setContent(LanguageManager.gameObj["costAction"] + Math.min((Number(LocalGameData.resistance[1]) - Math.floor(Number(LocalGameData.resistance[0])) / 2, 10) + LanguageManager.gameObj["needWood"] + Math.min(Number(LocalGameData.resistance[1]) - Number(LocalGameData.resistance[0]), 20) + LanguageManager.gameObj["firmness"]));
                 break;
             case 7:
                 for (var i = 0; i < LocalGameData.residentList.length; i++) {
@@ -71403,7 +71505,7 @@ var UIHall = (function (_super) {
                 if (LocalGameData.isGameOver) {
                     _this.standGuardBox.removeChildren();
                     _this.addChild(_this.warn);
-                    _this.warn.setContent("今天未满足生存条件，游戏结束！");
+                    _this.warn.setContent(LanguageManager.gameObj["gameOver"]);
                     return;
                 }
                 setTimeout(getIsGameOver, 1000);
@@ -71413,7 +71515,7 @@ var UIHall = (function (_super) {
         var getMyDay;
         setTimeout(getMyDay = function () {
             LGBlockChain.getData("getMyDay", [], Handler.create(_this, function (myDay) {
-                _this.myDay.text = myDay + "天";
+                _this.myDay.text = myDay + LanguageManager.gameObj["day"];
                 LocalGameData.myDay = myDay;
                 setTimeout(getMyDay, 1000);
             }));
@@ -71523,8 +71625,8 @@ var UIHall = (function (_super) {
         var getMonster;
         setTimeout(getMonster = function () {
             LGBlockChain.getData("getMonster", [], Handler.create(_this, function (monsterData) {
-                _this.monsterHptext.text = monsterData + "/" + ((1 + LocalGameData.myDay) * Math.floor(LocalGameData.myDay / 2));
-                _this.monsterHP.value = monsterData / ((1 + LocalGameData.myDay) * Math.floor(LocalGameData.myDay / 2));
+                _this.monsterHptext.text = monsterData + "/" + ((1 + LocalGameData.myDay) * (LocalGameData.myDay / 2));
+                _this.monsterHP.value = monsterData / ((1 + LocalGameData.myDay) * (LocalGameData.myDay / 2));
                 LocalGameData.monster = monsterData;
                 setTimeout(getMonster, 1000);
             }));
@@ -71578,17 +71680,17 @@ var UIHall = (function (_super) {
             if (LocalGameData.monster - LocalGameData.standGuard > Number(LocalGameData.resistance[0])) {
                 _this.isDeathThreat = true;
                 _this.addChild(_this.threat);
-                _this.threat.setThreat("当前怪物攻击力大于你的城墙坚固程度！请注意修复！！");
+                _this.threat.setThreat(LanguageManager.gameObj["needRepair"]);
             }
             else if ((Number(LocalGameData.leek[0]) + (1 + (Number(LocalGameData.buildingGrade[0])))) < Number(LocalGameData.population[0])) {
                 _this.isDeathThreat = true;
                 _this.addChild(_this.threat);
-                _this.threat.setThreat("当前剩余的韭菜加上明天的韭菜产量了不足以维持所有居民存活，请注意危险！");
+                _this.threat.setThreat(LanguageManager.gameObj["attentionLeek"]);
             }
             else if ((Number(LocalGameData.water[0])) < Number(LocalGameData.population[0])) {
                 _this.isDeathThreat = true;
                 _this.addChild(_this.threat);
-                _this.threat.setThreat("当前剩余的水不足以维持所有居民存活，请注意危险！");
+                _this.threat.setThreat(LanguageManager.gameObj["attentionWater"]);
             }
             else {
                 _this.isDeathThreat = false;
@@ -71719,13 +71821,27 @@ var UIWarning = (function (_super) {
         this.confirm.add_CLICK(this.onConfirm, this);
     };
     UIWarning.prototype.onConfirm = function (e) {
-        this.parent.removeChild(this);
-        if (this.warn.text == LanguageManager.gameObj["gameOver"]) {
-            this.logic.addLogin();
+        this.removeThis();
+        if (this.funBack != null) {
+            this.funBack();
+            this.funBack = null;
+            return;
+        }
+        if (LanguageManager.gameObj) {
+            if (this.warn.text == LanguageManager.gameObj["gameOver"]) {
+                this.logic.addLogin();
+            }
         }
     };
     UIWarning.prototype.setContent = function (str) {
         this.warn.text = str;
+    };
+    UIWarning.prototype.setFunBack = function (fun) {
+        if (fun === void 0) { fun = null; }
+        this.funBack = fun;
+    };
+    UIWarning.prototype.removeThis = function () {
+        this.removeSelf();
     };
     return UIWarning;
 }(SCUI.ui.Popup.warningUI));
@@ -71898,17 +72014,6 @@ function onLoaded() {
 }
 function initEffect() {
     Effect.init(Handler.create(this, function () {
-        if (LGBlockChain.realBlockChain) {
-            BlockChainDB.init();
-            var myid = "qNmH1ASrpN3V8T3Txj37kRKdUqHD6usacV";
-            BlockChainDB.loginGame(myid, function () {
-                BlockChainDB.createPlayer(function () {
-                    new LogicManager();
-                });
-            });
-        }
-        else {
-            new LogicManager();
-        }
+        new LogicManager();
     }));
 }
