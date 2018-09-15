@@ -1,5 +1,7 @@
 # HomeOfSurvivor
-a survival  game on qtum<br>
+a survival  game on qtum<hr>
+这是一个使用我们自研的IDE(尚未公开)开发的一款区块链独立游戏，
+我们在自研IDE上编写游戏逻辑和对接QTUM区块链<hr>
 you need install chrome plug:Qrypto<br>
 你需要安装钱包Qrypto，在谷歌插件商店里找到<hr>
 游戏地址（Game Address）：<br>
